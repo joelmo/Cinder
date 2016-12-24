@@ -1,43 +1,32 @@
-# Copyright (c) 2013 Martin Felis <martin@fysx.org>
-# License: Public Domain (Unlicense: http://unlicense.org/)
+# Find sndfile library
 #
-# Try to find SNDFILE. Sets the following variables:
-#   SNDFILE_FOUND
-#   SNDFILE_INCLUDE_DIR
-#   SNDFILE_LIBRARY
+# Released under BSD license
+#
+#  SNDFILE_INCLUDE_DIRS - where to find sndfile.h, etc
+#  SNDFILE_LIBRARIES    - Lists of libraries when using sndfile
+#  SNDFILE_FOUND        - True if sndfile found
 
-set( SNDFILE_FOUND false )
+INCLUDE(FindPackageHandleStandardArgs)
 
-set( SNDFILE_INCLUDE_DIRS /opt/local/include /usr/local/include /usr/include )
-set( SNDFILE_LIBRARY_DIRS /opt/local/lib /usr/local/lib /usr/lib )
+# Look for the header file
+FIND_PATH(SNDFILE_INCLUDE_DIR NAMES sndfile.h)
+MARK_AS_ADVANCED(SNDFILE_INCLUDE_DIR)
 
-set( SNDFILE_LIB_SUFFIXES lib x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu )
+# Look for the library
+SET(SNDFILE_LIBS sndfile)
+FIND_LIBRARY(SNDFILE_LIBRARY NAMES ${SNDFILE_LIBS})
+MARK_AS_ADVANCED(SNDFILE_LIBRARY)
 
-find_path( SNDFILE_INCLUDE_DIR NAMES "sndfile.h" PATHS ${SNDFILE_INCLUDE_DIRS} PATH_SUFFIXES include NO_DEFAULT_PATH )
-find_library( SNDFILE_LIBRARY  NAMES "sndfile"   PATHS ${SNDFILE_LIBRARY_DIRS} PATH_SUFFIXES ${SNDFILE_LIB_SUFFIXES} NO_DEFAULT_PATH )
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(SNDFILE REQUIRED_VARS SNDFILE_LIBRARY SNDFILE_INCLUDE_DIR)
 
-mark_as_advanced( SNDFILE_INCLUDE_DIR SNDFILE_LIBRARY )
-
-if( SNDFILE_LIBRARY AND EXISTS "${SNDFILE_LIBRARY}" )
-	get_filename_component( SNDFILE_SO_PATH "${SNDFILE_LIBRARY}" REALPATH )
-
-    string( REGEX REPLACE "^.*/libsndfile\\.so\\.([0-9]+).*$" "\\1" SNDFILE_VERSION_MAJOR "${SNDFILE_SO_PATH}" )
-    string( REGEX REPLACE "^.*/libsndfile\\.so\\.[0-9]+\\.([0-9]+).*$" "\\1" SNDFILE_VERSION_MINOR  "${SNDFILE_SO_PATH}" )
-    string( REGEX REPLACE "^.*/libsndfile\\.so\\.[0-9]+\\.[0-9]+\\.([0-9]+).*$" "\\1" SNDFILE_VERSION_PATCH "${SNDFILE_SO_PATH}" )
-    set( SNDFILE_VERSION_STRING "${SNDFILE_VERSION_MAJOR}.${SNDFILE_VERSION_MINOR}.${SNDFILE_VERSION_PATCH}" )
-
-    set( SNDFILE_MAJOR_VERSION "${SNDFILE_VERSION_MAJOR}" )
-    set( SNDFILE_MINOR_VERSION "${SNDFILE_VERSION_MINOR}" )
-    set( SNDFILE_PATCH_VERSION "${SNDFILE_VERSION_PATCH}" )
-endif()
-
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( 
-	SNDFILE	
-	REQUIRED_VARS SNDFILE_LIBRARY SNDFILE_INCLUDE_DIR 
-	VERSION_VAR SNDFILE_VERSION_STRING
-)
-
-if( SNDFILE_FOUND )
-	message( STATUS "  using SNDFILE headers at: ${SNDFILE_INCLUDE_DIR}" )
-endif()
+# Copy the result to output variables
+IF(SNDFILE_FOUND)
+  SET(SNDFILE_LIBRARIES ${SNDFILE_LIBRARY})
+  SET(SNDFILE_INCLUDE_DIRS ${SNDFILE_INCLUDE_DIR})
+ELSE(SNDFILE_FOUND)
+  SET(SNDFILE_LIBS)
+  SET(SNDFILE_LIBRARY)
+  SET(SNDFILE_LIBRARIES)
+  SET(SNDFILE_INCLUDE_DIR)
+  SET(SNDFILE_INCLUDE_DIRS)
+ENDIF(SNDFILE_FOUND)
